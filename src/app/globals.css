@@ -1,26 +1,45 @@
 @import "tailwindcss";
 
+/* Tam ekran yüksekliği */
+html,
+body,
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  height: 100%;
+  margin: 0;
+  padding: 0;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Leaflet düzeltmeleri */
+.leaflet-container {
+  z-index: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Leaflet kontrolleri z-index sıfırlama */
+.leaflet-pane,
+.leaflet-top,
+.leaflet-bottom,
+.leaflet-control {
+  z-index: 0 !important;
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+/* Tarih seçici (Date Range Picker) stilleri */
+.rdrMonth {
+  width: 100% !important;
+}
+
+.rdrCalendarWrapper {
+  width: 100% !important;
+  font-size: 16px !important;
+}
+
+.rdrDaySelected,
+.rdrDayStartOfRange,
+.rdrDayEndOfRange {
+  background-color: rgb(244, 63, 94) !important; /* Tailwind 'rose-500' */
+  color: white !important;
+}
+
+.rdrInRange {
+  background-color: rgb(244, 63, 94) !important;
+  color: black !important;
 }
