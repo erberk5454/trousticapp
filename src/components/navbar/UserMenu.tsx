@@ -67,7 +67,7 @@ const UserMenu: React.FC<UserMenuProps> = ({ currentuser }) => {
         <div
           className="
             absolute rounded-xl shadow-md 
-            w-[40vw] md:w-3/4 overflow-hidden 
+            w-[40vw] md:w-[25vw] lg:w-[15vw]  overflow-hidden 
             right-0 top-12 text-sm bg-white bg-opacity-100 z-50
           "
         >

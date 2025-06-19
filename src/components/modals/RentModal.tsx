@@ -145,9 +145,9 @@ const RentModal: React.FC = () => {
   // Adım 1: Kategori
   if (step === STEPS.CATEGORY) {
     bodyContent = (
-      <div className="flex flex-col gap-8">
+      <div className="flex flex-col gap-8  ">
         <Heading title="Kategori seçin" subtitle="Yerinizi tanımlayın" />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto max-h-[50vh]">
           {categories.map((item) => (
             // onClick buraya alındı
             <div
@@ -173,8 +173,8 @@ const RentModal: React.FC = () => {
   // Adım 2: Konum
   if (step === STEPS.LOCATION) {
     bodyContent = (
-      <div className="flex flex-col gap-8">
-        <Heading title="Konum" subtitle="Haritadan veya listeden seçin" />
+      <div className="flex flex-col gap-4">
+        <Heading title="Konum" subtitle="Haritaya çift tıklayarak yerinizi kayıt edebilirsiniz. " />
 
         <DropDownBox onSelect={onDropdownSelect} />
 
@@ -185,14 +185,14 @@ const RentModal: React.FC = () => {
         )}
 
         <div className="h-60 rounded-lg overflow-hidden">
-          <Map
-            center={location ? { lat: location.lat, lng: location.lng } : undefined}
-            selectable
-            onChange={onMapChange}
-            markerPosition={
-              location ? { lat: location.lat, lng: location.lng } : null
-            }
-          />
+         <Map
+  key={location ? `${location.lat}-${location.lng}` : "default-map"}
+  center={location ? { lat: location.lat, lng: location.lng } : undefined}
+  selectable
+  onChange={onMapChange}
+  markerPosition={location ? { lat: location.lat, lng: location.lng } : null}
+/>
+
         </div>
 
         {errors.location && (

@@ -9,6 +9,7 @@ import LoginModal from "@/components/modals/LoginModal";
 import getCurrentUser from "./actions/getCurrentUser";
 import ClientOnly from "@/components/ClientOnly";
 import RentModal from "@/components/modals/RentModal";
+import MapProvider from "@/components/MapProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -43,16 +44,18 @@ export default async function RootLayout({
       <body
         className={nunito.className}
       >
+
         <ToasterProvider/>
+    
         <LoginModal/>
         <RegisterModal/>
         <RentModal/>
         <ClientOnly>
         <Navbar currentuser={currentUser}/>
         </ClientOnly>
-        <div className="pb-20 pt-28">
-        {children}
-        </div>
+         <MapProvider> {/* 👈 Wrap edilen alan */}
+          <div className="pb-20 pt-28">{children}</div>
+        </MapProvider>
       </body>
     </html>
   );

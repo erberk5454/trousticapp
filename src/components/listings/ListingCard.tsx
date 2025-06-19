@@ -85,6 +85,12 @@ const reservationDate = useMemo(() => {
             alt="Listing"
             src={data.imageSrc}
             className="object-cover h-full w-full group-hover:scale-110 transition"
+            sizes="(max-width: 640px) 100vw, 
+       (max-width: 768px) 50vw, 
+       (max-width: 1024px) 33vw, 
+       (max-width: 1280px) 25vw, 
+       (max-width: 1536px) 20vw, 
+       16.6vw"
           />
           <div className="absolute top-3 right-3">
             <HeartButton listingId={data.id} currentUser={currentUser} />
