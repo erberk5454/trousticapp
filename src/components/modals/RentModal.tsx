@@ -1,4 +1,3 @@
-// components/modals/RentModal.tsx
 "use client";
 
 import React, { useState, useCallback, useMemo } from "react";
@@ -17,8 +16,7 @@ import Counter from "../inputs/Counter";
 import ImageUpload from "../inputs/ImageUpload";
 import Input from "../inputs/Input";
 import useRentModal from "@/app/hooks/useRentModal";
-
-import { LocationValue } from "../Map"; // Map.tsx’den import
+import { LocationValue } from "../Map";
 
 enum STEPS {
   CATEGORY = 0,
@@ -35,13 +33,11 @@ export interface RentFormValues {
   guestCount: number;
   roomCount: number;
   bathroomCount: number;
-  imageSrc: string;
+  imageSrc: string[];
   title: string;
   description: string;
   price: number;
 }
-
-const Map = dynamic(() => import("../Map"), { ssr: false });
 
 const RentModal: React.FC = () => {
   const rentModal = useRentModal();
@@ -65,7 +61,7 @@ const RentModal: React.FC = () => {
       guestCount: 1,
       roomCount: 1,
       bathroomCount: 1,
-      imageSrc: "",
+      imageSrc: [],
       title: "",
       description: "",
       price: 1,
@@ -74,8 +70,8 @@ const RentModal: React.FC = () => {
 
   const category = watch("category");
   const location = watch("location");
+  const imageSrc = watch("imageSrc");
 
-  // Dropdown’dan seçim
   const onDropdownSelect = useCallback(
     (val: { label: string; value: string; latlng: [number, number] } | null) => {
       if (val) {
@@ -92,16 +88,15 @@ const RentModal: React.FC = () => {
     [setValue]
   );
 
-  // Haritadan seçim
   const onMapChange = useCallback(
     (loc: LocationValue) => {
       setValue("location", loc, { shouldValidate: true, shouldDirty: true });
-      console.log("Map’den gelen adres:", loc.address);
     },
     [setValue]
   );
 
   const onBack = () => setStep((prev) => prev - 1);
+
   const onNext = async () => {
     const fieldMap: Record<number, Array<keyof RentFormValues>> = {
       [STEPS.CATEGORY]: ["category"],
@@ -111,6 +106,7 @@ const RentModal: React.FC = () => {
       [STEPS.DESCRIPTION]: ["title", "description"],
       [STEPS.PRICE]: ["price"],
     };
+
     const valid = await trigger(fieldMap[step] || []);
     if (valid) setStep((prev) => prev + 1);
   };
@@ -131,25 +127,41 @@ const RentModal: React.FC = () => {
       .finally(() => setIsLoading(false));
   };
 
+ // Çoklu görsel yükleme yönetimi
+const handleImagesChange = useCallback(
+  (newImages: string[]) => {
+    setValue("imageSrc", newImages, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  },
+  [setValue]
+);
+  const handleRemoveImage = (url: string) => {
+    const updated = imageSrc.filter((item) => item !== url);
+    setValue("imageSrc", updated, { shouldValidate: true, shouldDirty: true });
+  };
+
   const actionLabel = useMemo(
     () => (step === STEPS.PRICE ? "Oluştur" : "Sonraki"),
     [step]
   );
+
   const secondaryActionLabel = useMemo(
     () => (step === STEPS.CATEGORY ? undefined : "Geri"),
     [step]
   );
 
+  const Map = useMemo(() => dynamic(() => import("../Map"), { ssr: false }), []);
+
   let bodyContent: React.ReactNode = null;
 
-  // Adım 1: Kategori
   if (step === STEPS.CATEGORY) {
     bodyContent = (
-      <div className="flex flex-col gap-8  ">
+      <div className="flex flex-col gap-8">
         <Heading title="Kategori seçin" subtitle="Yerinizi tanımlayın" />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 overflow-y-auto max-h-[50vh]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 max-h-[50vh] overflow-y-auto">
           {categories.map((item) => (
-            // onClick buraya alındı
             <div
               key={item.label}
               onClick={() => setValue("category", item.label, { shouldValidate: true })}
@@ -170,11 +182,13 @@ const RentModal: React.FC = () => {
     );
   }
 
-  // Adım 2: Konum
   if (step === STEPS.LOCATION) {
     bodyContent = (
       <div className="flex flex-col gap-4">
-        <Heading title="Konum" subtitle="Haritaya çift tıklayarak yerinizi kayıt edebilirsiniz. " />
+        <Heading
+          title="Konum"
+          subtitle="Haritaya çift tıklayarak yerinizi seçin."
+        />
 
         <DropDownBox onSelect={onDropdownSelect} />
 
@@ -185,14 +199,13 @@ const RentModal: React.FC = () => {
         )}
 
         <div className="h-60 rounded-lg overflow-hidden">
-         <Map
-  key={location ? `${location.lat}-${location.lng}` : "default-map"}
-  center={location ? { lat: location.lat, lng: location.lng } : undefined}
-  selectable
-  onChange={onMapChange}
-  markerPosition={location ? { lat: location.lat, lng: location.lng } : null}
-/>
-
+          <Map
+            key={location ? `${location.lat}-${location.lng}` : "default-map"}
+            center={location ? { lat: location.lat, lng: location.lng } : undefined}
+            selectable
+            onChange={onMapChange}
+            markerPosition={location ? { lat: location.lat, lng: location.lng } : null}
+          />
         </div>
 
         {errors.location && (
@@ -202,11 +215,10 @@ const RentModal: React.FC = () => {
     );
   }
 
-  // Adım 3: Bilgi
   if (step === STEPS.INFO) {
     bodyContent = (
       <div className="flex flex-col gap-8">
-        <Heading title="Detaylar" subtitle="Misafir sayılarını girin" />
+        <Heading title="Detaylar" subtitle="Misafir sayılarını belirtin" />
         <Counter
           onChange={(v) => setValue("guestCount", v)}
           title="Misafir"
@@ -229,15 +241,13 @@ const RentModal: React.FC = () => {
     );
   }
 
-  // Adım 4: Resim
   if (step === STEPS.IMAGES) {
     bodyContent = (
-      <div className="flex flex-col gap-8">
-        <Heading title="Fotoğraf" subtitle="Yerinizin fotoğrafını yükleyin" />
-        <ImageUpload
-          value={watch("imageSrc")}
-          onChange={(v) => setValue("imageSrc", v)}
-        />
+      <div className="flex flex-col gap-6">
+        <Heading title="Fotoğraflar" subtitle="Yerinize ait görselleri yükleyin." />
+
+        <ImageUpload value={imageSrc} onChange={handleImagesChange} />
+
         {errors.imageSrc && (
           <p className="text-rose-500">{errors.imageSrc.message}</p>
         )}
@@ -245,11 +255,10 @@ const RentModal: React.FC = () => {
     );
   }
 
-  // Adım 5: Açıklama
   if (step === STEPS.DESCRIPTION) {
     bodyContent = (
       <div className="flex flex-col gap-8">
-        <Heading title="Açıklama" subtitle="Yerinizi anlatın" />
+        <Heading title="Açıklama" subtitle="Yerinizi detaylandırın" />
         <Input<RentFormValues> id="title" label="Başlık" register={register} errors={errors} required />
         <Input<RentFormValues>
           id="description"
@@ -263,7 +272,6 @@ const RentModal: React.FC = () => {
     );
   }
 
-  // Adım 6: Fiyat
   if (step === STEPS.PRICE) {
     bodyContent = (
       <div className="flex flex-col gap-8">

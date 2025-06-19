@@ -10,7 +10,12 @@ import getCurrentUser from "./actions/getCurrentUser";
 import ClientOnly from "@/components/ClientOnly";
 import RentModal from "@/components/modals/RentModal";
 import MapProvider from "@/components/MapProvider";
+import Script from "next/script";
 
+<Script
+  src="https://widget.cloudinary.com/v2.0/global/all.js"
+  strategy="beforeInteractive"
+/>
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
