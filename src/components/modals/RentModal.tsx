@@ -1,3 +1,7 @@
+// app/components/modals/RentModal.tsx
+//harika
+
+
 "use client";
 
 import React, { useState, useCallback, useMemo } from "react";
@@ -10,7 +14,7 @@ import toast from "react-hot-toast";
 import Modal from "./Modal";
 import Heading from "../Heading";
 import { categories } from "../navbar/Categories";
-import CategoryInput from "@/components/inputs/CategoryInput";
+import CategoryInput from "../inputs/CategoryInput";
 import DropDownBox from "../DropDownBox";
 import Counter from "../inputs/Counter";
 import ImageUpload from "../inputs/ImageUpload";
@@ -127,16 +131,15 @@ const RentModal: React.FC = () => {
       .finally(() => setIsLoading(false));
   };
 
- // Çoklu görsel yükleme yönetimi
-const handleImagesChange = useCallback(
-  (newImages: string[]) => {
-    setValue("imageSrc", newImages, {
-      shouldValidate: true,
-      shouldDirty: true,
-    });
-  },
-  [setValue]
-);
+  const handleImagesChange = useCallback(
+    (newImages: string[]) => {
+      const current = watch("imageSrc") || [];
+      const merged = Array.from(new Set([...current, ...newImages]));
+      setValue("imageSrc", merged, { shouldValidate: true, shouldDirty: true });
+    },
+    [setValue, watch]
+  );
+
   const handleRemoveImage = (url: string) => {
     const updated = imageSrc.filter((item) => item !== url);
     setValue("imageSrc", updated, { shouldValidate: true, shouldDirty: true });
@@ -246,7 +249,8 @@ const handleImagesChange = useCallback(
       <div className="flex flex-col gap-6">
         <Heading title="Fotoğraflar" subtitle="Yerinize ait görselleri yükleyin." />
 
-        <ImageUpload value={imageSrc} onChange={handleImagesChange} />
+        <ImageUpload   onRemove={handleRemoveImage} // 🔴 çarpı fonksiyonu burada veriliyor
+value={imageSrc} onChange={handleImagesChange} />
 
         {errors.imageSrc && (
           <p className="text-rose-500">{errors.imageSrc.message}</p>
@@ -254,13 +258,14 @@ const handleImagesChange = useCallback(
       </div>
     );
   }
-
+console.log(imageSrc)
   if (step === STEPS.DESCRIPTION) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading title="Açıklama" subtitle="Yerinizi detaylandırın" />
-        <Input<RentFormValues> id="title" label="Başlık" register={register} errors={errors} required />
+        <Input<RentFormValues> key="title" id="title" label="Başlık" register={register} errors={errors} required />
         <Input<RentFormValues>
+          key="description"
           id="description"
           label="Açıklama"
           register={register}
@@ -277,6 +282,7 @@ const handleImagesChange = useCallback(
       <div className="flex flex-col gap-8">
         <Heading title="Fiyat" subtitle="Gecelik ücret" />
         <Input<RentFormValues>
+          key="price"
           id="price"
           label="Fiyat"
           formatPrice

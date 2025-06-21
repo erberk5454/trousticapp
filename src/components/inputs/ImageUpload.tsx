@@ -1,5 +1,5 @@
-// components/inputs/ImageUpload.tsx
 "use client";
+//harika
 
 import { CldUploadWidget } from "next-cloudinary";
 import Image from "next/image";
@@ -16,63 +16,29 @@ declare global {
 type ImageUploadProps = {
   onChange: (urls: string[]) => void;
   value: string[];
+  onRemove: (url: string) => void;
 };
 
 const MAX_FILES = 30;
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+const MAX_FILE_SIZE = 10 * 1024 * 1024;
 
-const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value }) => {
+const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value, onRemove }) => {
   const handleUpload = useCallback(
     (result: any) => {
-      const url = result.info.secure_url;
+      const url = result.info?.secure_url;
       if (!url) return;
-
       if (value.includes(url)) {
-        toast.error("Bu resim zaten yüklendi.");
+        toast.error("Bu resim zaten eklendi.");
         return;
       }
-
-      const updated = [...value, url];
-      onChange(updated);
-    },
-    [value, onChange]
-  );
-
-  const handleRemove = useCallback(
-    (url: string) => {
-      const updated = value.filter((item) => item !== url);
-      onChange(updated);
+      onChange([...value, url]);
     },
     [value, onChange]
   );
 
   return (
-    <div className="space-y-4">
-      {/* Upload button */}
-      {value.length < MAX_FILES && (
-        <CldUploadWidget
-          onSuccess={handleUpload}
-          uploadPreset="ml_default"
-          options={{
-            maxFiles: MAX_FILES - value.length,
-            maxFileSize: MAX_FILE_SIZE,
-            multiple: true,
-            resourceType: "image",
-          }}
-        >
-          {({ open }) => (
-            <button
-              type="button"
-              onClick={() => open?.()}
-              className="flex items-center justify-center w-10 h-10 bg-green-500 rounded-full text-white hover:bg-green-600 transition"
-            >
-              <TbPhotoPlus size={24} />
-            </button>
-          )}
-        </CldUploadWidget>
-      )}
-
-      {/* Placeholder */}
+    <div className="space-y-4 relative">
+      {/* Eğer hiç resim yoksa placeholder göster */}
       {value.length === 0 && (
         <CldUploadWidget
           onSuccess={handleUpload}
@@ -84,10 +50,13 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value }) => {
             resourceType: "image",
           }}
         >
-          {({ open }) => (
+          {(widgetApi) => (
             <div
-              className="cursor-pointer hover:opacity-70 transition border-dashed border-2 p-10 border-neutral-300 flex flex-col justify-center items-center gap-4 text-neutral-600"
-              onClick={() => open?.()}
+              onClick={(e) => {
+                e.preventDefault();
+                widgetApi?.open();
+              }}
+              className="cursor-pointer hover:opacity-70 transition border-dashed border-2 p-10 border-neutral-300 flex flex-col items-center gap-4 text-neutral-600"
             >
               <TbPhotoPlus size={40} />
               <div className="font-semibold">Resim Yükleyin</div>
@@ -96,36 +65,57 @@ const ImageUpload: React.FC<ImageUploadProps> = ({ onChange, value }) => {
         </CldUploadWidget>
       )}
 
-      {/* Gallery */}
+      {/* Eğer resim varsa: yeşil buton + galeri */}
       {value.length > 0 && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[150px] overflow-y-auto max-h-[400px] pr-2">
-          {value.map((url, index) => {
-            const isLarge = index === 0;
-            return (
+        <>
+          {/* Yeşil buton sol üstte */}
+          <CldUploadWidget
+  onSuccess={handleUpload}
+  uploadPreset="ml_default"
+  options={{
+    maxFiles: MAX_FILES - value.length,
+    maxFileSize: MAX_FILE_SIZE,
+    multiple: true,
+    resourceType: "image",
+  }}
+>
+  {(widgetApi) => (
+    <button
+      onClick={(e) => {
+        e.preventDefault();
+        widgetApi?.open();
+      }}
+      className="absolute -top-4 left-0 z-10 bg-green-600 hover:bg-green-700 text-white text-sm px-3 py-1 rounded-full shadow transition flex items-center gap-2"
+    >
+      <TbPhotoPlus size={18} />
+      Resim Ekle
+    </button>
+  )}
+</CldUploadWidget>
+
+
+          {/* Galeri */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 auto-rows-[150px] overflow-y-auto max-h-[400px] pr-2 pt-6">
+            {value.map((url, idx) => (
               <div
                 key={url}
                 className={clsx(
                   "relative overflow-hidden rounded-lg group",
-                  isLarge ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
+                  idx === 0 ? "col-span-2 row-span-2" : "col-span-1 row-span-1"
                 )}
               >
-                <Image
-                  src={url}
-                  alt={`uploaded-${index}`}
-                  fill
-                  className="object-cover"
-                />
+                <Image src={url} alt={`img-${idx}`} fill className="object-cover" />
                 <button
                   type="button"
-                  onClick={() => handleRemove(url)}
-                  className="absolute top-2 right-2 bg-black/60 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
+                  onClick={() => onRemove(url)}
+                  className="absolute top-2 right-2 bg-black/70 text-white p-1 rounded-full opacity-0 group-hover:opacity-100 transition"
                 >
-                  <MdClose size={18} />
+                  <MdClose size={20} />
                 </button>
               </div>
-            );
-          })}
-        </div>
+            ))}
+          </div>
+        </>
       )}
     </div>
   );
