@@ -7360,7 +7360,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Şirnak",
+    "city": "Şırnak",
     "district": "Beytüşşebap",
     "latlng": [
       37.5709495,
@@ -7368,7 +7368,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Şirnak",
+    "city": "Şırnak",
     "district": "Ci̇zre",
     "latlng": [
       37.3324374,
@@ -7376,7 +7376,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Şirnak",
+    "city": "Şırnak",
     "district": "Güçlükonak",
     "latlng": [
       37.4711631,
@@ -7384,7 +7384,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Şirnak",
+    "city": "Şırnak",
     "district": "İdi̇l",
     "latlng": [
       37.3401862,
@@ -7392,7 +7392,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Şirnak",
+    "city": "Şırnak",
     "district": "Merkez",
     "latlng": [
       37.548722,
@@ -7408,7 +7408,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Şirnak",
+    "city": "Şırnak",
     "district": "Uludere",
     "latlng": [
       37.4467396,
@@ -7416,7 +7416,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Bartin",
+    "city": "Bartın",
     "district": "Amasra",
     "latlng": [
       41.7489175,
@@ -7424,7 +7424,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Bartin",
+    "city": "Bartın",
     "district": "Kurucaşi̇le",
     "latlng": [
       41.8438903,
@@ -7432,7 +7432,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Bartin",
+    "city": "Bartın",
     "district": "Merkez",
     "latlng": [
       41.3371173,
@@ -7440,7 +7440,7 @@ export const locations = [
     ]
   },
   {
-    "city": "Bartin",
+    "city": "Bartın",
     "district": "Ulus",
     "latlng": [
       41.5835599,

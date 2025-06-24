@@ -1,10 +1,6 @@
-// app/components/modals/RentModal.tsx
-//harika
-
-
 "use client";
 
-import React, { useState, useCallback, useMemo } from "react";
+import React, { useState, useCallback, useMemo, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { useForm, SubmitHandler } from "react-hook-form";
 import { useRouter } from "next/navigation";
@@ -100,16 +96,55 @@ const RentModal: React.FC = () => {
   );
 
   const onBack = () => setStep((prev) => prev - 1);
+ useEffect(() => {
+  if (location?.lat && location?.lng) {
+    const fetchCityAndDistrict = async () => {
+      try {
+        const res = await fetch("/api/reverse-geocode", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            lat: location.lat,
+            lng: location.lng,
+          }),
+        });
+
+        const data = await res.json();
+        if (res.ok) {
+          console.log("İl:", data.city);
+          console.log("İlçe:", data.district);
+        } else {
+          console.warn("Geocode başarısız:", data.error);
+        }
+      } catch (error) {
+        console.error("İstek hatası:", error);
+      }
+    };
+
+    fetchCityAndDistrict();
+  }
+}, [location]);
+
 
   const onNext = async () => {
     const fieldMap: Record<number, Array<keyof RentFormValues>> = {
       [STEPS.CATEGORY]: ["category"],
       [STEPS.LOCATION]: ["location"],
       [STEPS.INFO]: ["guestCount", "roomCount", "bathroomCount"],
-      [STEPS.IMAGES]: ["imageSrc"],
+      [STEPS.IMAGES]: [], // imageSrc burada yok, manuel kontrol yapacağız
       [STEPS.DESCRIPTION]: ["title", "description"],
       [STEPS.PRICE]: ["price"],
     };
+
+    // imageSrc manuel kontrolü:
+    if (step === STEPS.IMAGES) {
+      if (!imageSrc || imageSrc.length === 0) {
+        toast.error("En az 1 fotoğraf yüklemelisiniz.");
+        return; // Burada step değişmez, hata gösterilir
+      }
+    }
 
     const valid = await trigger(fieldMap[step] || []);
     if (valid) setStep((prev) => prev + 1);
@@ -249,8 +284,11 @@ const RentModal: React.FC = () => {
       <div className="flex flex-col gap-6">
         <Heading title="Fotoğraflar" subtitle="Yerinize ait görselleri yükleyin." />
 
-        <ImageUpload   onRemove={handleRemoveImage} // 🔴 çarpı fonksiyonu burada veriliyor
-value={imageSrc} onChange={handleImagesChange} />
+        <ImageUpload
+          onRemove={handleRemoveImage}
+          value={imageSrc}
+          onChange={handleImagesChange}
+        />
 
         {errors.imageSrc && (
           <p className="text-rose-500">{errors.imageSrc.message}</p>
@@ -258,14 +296,19 @@ value={imageSrc} onChange={handleImagesChange} />
       </div>
     );
   }
-console.log(imageSrc)
+
   if (step === STEPS.DESCRIPTION) {
     bodyContent = (
       <div className="flex flex-col gap-8">
         <Heading title="Açıklama" subtitle="Yerinizi detaylandırın" />
-        <Input<RentFormValues> key="title" id="title" label="Başlık" register={register} errors={errors} required />
         <Input<RentFormValues>
-          key="description"
+          id="title"
+          label="Başlık"
+          register={register}
+          errors={errors}
+          required
+        />
+        <Input<RentFormValues>
           id="description"
           label="Açıklama"
           register={register}
@@ -282,7 +325,6 @@ console.log(imageSrc)
       <div className="flex flex-col gap-8">
         <Heading title="Fiyat" subtitle="Gecelik ücret" />
         <Input<RentFormValues>
-          key="price"
           id="price"
           label="Fiyat"
           formatPrice
